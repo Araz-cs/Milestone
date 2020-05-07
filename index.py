@@ -4,8 +4,7 @@ import re
 from pathlib import Path
 from bs4 import BeautifulSoup, Comment
 
-ary = []
-path = os.path.dirname(os.path.realpath(__file__))  + '\DEV'
+path =path = os.path.dirname(os.path.realpath(__file__))  + '/DEV'
 for subdir, dirs, files in os.walk(path):
     for filename in files:
         filepath = subdir + os.sep + filename
