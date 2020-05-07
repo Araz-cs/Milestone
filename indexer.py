@@ -1,5 +1,4 @@
 from nltk.stem import PorterStemmer
-from nltk import ____
 
 
 class Index:
@@ -56,7 +55,7 @@ class Index:
                 # this is used to check if length of word is 3 or more
                 if (len(term)) >= 3:
                     term = porter.stem(term)
-                    
+
                     # stem value and append to docDict
                     if term in docDict:
                         docDict[term] += 1
