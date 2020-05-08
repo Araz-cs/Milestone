@@ -32,7 +32,7 @@ for subdir, dirs, files in os.walk(path):
             index.porterStem(space_delemited_text,docId, json_load['url'])
             docId +=1
             print(docId)
-            if docId == 50:
+            #if docId == 50:
             #    index.toFile()
 
 
