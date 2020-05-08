@@ -1,9 +1,13 @@
 import json
 import os
 import re
+from indexer import Index
 from pathlib import Path
 from bs4 import BeautifulSoup, Comment
 
+
+docId = 1
+index = Index(55393)
 path =path = os.path.dirname(os.path.realpath(__file__))  + '/DEV'
 for subdir, dirs, files in os.walk(path):
     for filename in files:
@@ -23,5 +27,10 @@ for subdir, dirs, files in os.walk(path):
                 element.extract()
 
             space_delemited_text = re.sub('\s+',' ',soup.get_text())
-            print (space_delemited_text)
-            x = input()
+           # print (space_delemited_text)
+            index.porterStem(space_delemited_text,docId, json_load['url'])
+            docId +=1
+            print(docId)
+            if docId == 50:
+                index.toFile()
+                exit(0)     

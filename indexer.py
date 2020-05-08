@@ -1,5 +1,5 @@
 from nltk.stem import PorterStemmer
-
+import json
 
 class Index:
     def __init__(self, numFiles: int):
@@ -33,9 +33,6 @@ class Index:
 
         return term_freq/total_term
       
-
-
-
 
 
     def porterStem(self, doc: str, docId: int, docName: str): # should docName be str?
@@ -95,10 +92,17 @@ class Index:
 
 
     def printIndex(self):
-        # placeholder function for printing the index itself for info needed for the report
+    # placeholder function for printing the index itself for info needed for the report
         # as stated by the document:
 
         # "A table with assorted numbers pertaining to your index. It should have, at least the number of documents,
         # the number of [unique] tokens, and the total size (in KB) of your index on disk."
 
         pass
+
+    def toFile(self):
+        # function to send the inverted index to a file. 
+        with open("database.json", "w") as write_file:
+            json.dump(self.inverted, write_file)
+   # def fromFile(self):
+        # funtion to retrieve a 
