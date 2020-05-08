@@ -18,22 +18,27 @@ class Index:
         self.maxWords = (0,0) # similarly, maxWords for a singular document. This will again be a two-tuple where: (doc-id, number of total words)
 
 
-    def tf(doc_term_dict: dict, totalTerm: int, term: str):
+    def total_terms(self,d_dict:dict):
+        #d_dict will be docDict in porterStem()
+        counter = 0
+        for value in d_dict.values():
+            counter+=value
+        return counter
+    
+    def tf(self, total_term: int, term_freq: int):
         #doc_term_dict is a dict of term frequencies for the doc in question with the token in question
         #as the key and frequency as the value
         #total_term is total number of terms in the individual doc
         #term is the token in question
 
-        if term in doc_term_dict.keys():
-            return doc_term_dict[term]/total_term
-        else:
-            pass
+        return term_freq/total_term
+      
 
 
 
 
 
-    def porterStem(self, doc: str, docId: int, docName: str): # shoudl docName be str?
+    def porterStem(self, doc: str, docId: int, docName: str): # should docName be str?
         # function will tokenize and stem the document given, then call the tf function to calculate the
         # index
         # assuming all terms are lowercase.
@@ -67,13 +72,15 @@ class Index:
                     term = ""
 
         # tf-id stuff here??
+        total_words = self.total_terms(docDict) 
+        #total_words is the total number of terms in the doc. It's used to calculate tf
 
         # Merge docDict to self.inverted.
         for term, freq in docDict.items():
             if term in self.inverted:
-                self.inverted[term].append((freq, docId))
+                self.inverted[term].append((self.tf(total_words,freq), docId))
             else:
-                self.inverted[term] = [(freq, docId)]
+                self.inverted[term] = [(self.tf(total_words,freq), docId)]
 
 
         # Add document info into docIndex
