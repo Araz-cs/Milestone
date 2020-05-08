@@ -3,6 +3,7 @@ import os
 import re
 from indexer import Index
 from pathlib import Path
+from datetime import datetime
 from bs4 import BeautifulSoup, Comment
 
 
@@ -32,5 +33,13 @@ for subdir, dirs, files in os.walk(path):
             docId +=1
             print(docId)
             if docId == 50:
-                index.toFile()
-                exit(0)     
+            #    index.toFile()
+
+
+file = open("info.txt", "a+")
+time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+file.write("Ran at: " + str(time) +"\n")
+file.write("Total documents read: " +  str(docId) + "\n")
+file.close()
+index.toFile()
+exit(0)

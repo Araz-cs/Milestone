@@ -1,4 +1,5 @@
 from nltk.stem import PorterStemmer
+from datetime import datetime
 import json
 
 class Index:
@@ -102,7 +103,26 @@ class Index:
 
     def toFile(self):
         # function to send the inverted index to a file. 
-        with open("database.json", "w") as write_file:
+        with open("database.json", "w+") as write_file:
             json.dump(self.inverted, write_file)
+        
+        time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+        #print docfile to docindex.csv
+        docfile = open("docindex.csv", "a+")
+        docfile.write("Ran at: ," + str(time) + "\n")
+        for id, res in self.docIndex.items():
+            docfile.write(str(id) + "," + str(res) + "\n")
+        docfile.close()
+
+        #print max token/word information to info.txt
+        file = open("info.txt", "a+")
+        file.write("Ran at:" + str(time) + "\n")
+        file.write("Max Tokens\nDocument: " + str(self.maxTokens[0]) +  "\nfrom URL: " + str(self.docIndex[self.maxTokens[0]]) +  "Total Tokens: " + str(self.maxTokens[1]))
+        file.write("\n\n")
+        file.write("Max words\nDocument: " +  str(self.maxWords[0]) + "\nfrom URL: " + str(self.docIndex[self.maxWords[0]]) + "Total Tokens: " + str(self.maxWords[1]))
+        file.write("Total unique keys:" + str(len(self.inverted)))
+        file.close()
+
    # def fromFile(self):
         # funtion to retrieve a 
