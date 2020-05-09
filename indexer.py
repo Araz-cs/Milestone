@@ -119,10 +119,10 @@ class Index:
         #print max token/word information to info.txt
         file = open("info.txt", "a+")
         file.write("Ran at:" + str(time) + "\n")
-        file.write("Max Tokens\nDocument: " + str(self.maxTokens[0]) +  "\nfrom URL: " + str(self.docIndex[self.maxTokens[0]]) +  "Total Tokens: " + str(self.maxTokens[1]))
+        file.write("Max Tokens\nDocument: " + str(self.maxTokens[0]) +  "\nfrom URL: " + str(self.docIndex[self.maxTokens[0]]) +  "\nTotal Tokens: " + str(self.maxTokens[1]))
         file.write("\n\n")
-        file.write("Max words\nDocument: " +  str(self.maxWords[0]) + "\nfrom URL: " + str(self.docIndex[self.maxWords[0]]) + "Total Tokens: " + str(self.maxWords[1]))
-        file.write("Total unique keys:" + str(len(self.inverted)))
+        file.write("Max words\nDocument: " +  str(self.maxWords[0]) + "\nfrom URL: " + str(self.docIndex[self.maxWords[0]]) + "\nTotal Tokens: " + str(self.maxWords[1]))
+        file.write("\nTotal unique keys:" + str(len(self.inverted)))
         file.close()
 
    # def fromFile(self):
