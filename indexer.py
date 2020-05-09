@@ -111,6 +111,7 @@ class Index:
         #print docfile to docindex.csv
         docfile = open("docindex.csv", "a+")
         docfile.write("Ran at: ," + str(time) + "\n")
+        docfile.write("ID,URL,Keys, Values\n")
         for id, res in self.docIndex.items():
             docfile.write(str(id) + "," + str(res) + "\n")
         docfile.close()
