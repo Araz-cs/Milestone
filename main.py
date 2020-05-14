@@ -34,9 +34,10 @@ while True:
 
     result_list = []
     for s in res: # loop through stemmed input and find best docs
-        result = datastore[s]
-        result.sort(reverse=True)
-        result_list.append(result)
+        if s in datastore:
+            result = datastore[s]
+            result.sort(reverse=True)
+            result_list.append(result)
 
     final = mergeQueries(result_list)[:5]
 
