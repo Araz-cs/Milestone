@@ -2,6 +2,28 @@ from nltk.stem import PorterStemmer
 from datetime import datetime
 import json
 
+
+def stemInput(query: str):
+    porter = PorterStemmer()
+    term = ""
+    ret = []
+    for i in range(len(query)):
+        if (query[i].isalnum()):
+            term += query[i].lower()
+        else:
+             # this is used to check if length of word is 3 or more
+            if (len(term)) >= 3:
+                term = porter.stem(term)
+                ret.append(term)
+                term = ""
+            else: 
+                term = ""
+    if term != "":
+        term = porter.stem(term)
+        ret.append(term)
+    return ret
+
+
 class Index:
     def __init__(self, numFiles: int):
         self.inverted = {} # dictionary of inverted index. structure would be term as key,
