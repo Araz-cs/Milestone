@@ -24,6 +24,17 @@ def stemInput(query: str):
         ret.append(term)
     return ret
 
+def mergeQueries(results: list):
+    doc_dict = {}
+    for result in results: 
+        for document in result:
+            if document[1] in doc_dict:
+                doc_dict[document[1]] += document[0]
+            else:
+                doc_dict[document[1]] = document[0]
+    
+    return sorted(doc_dict.items(), key=lambda x: x[1], reverse=True)
+
 
 class Index:
     def __init__(self, numFiles: int):

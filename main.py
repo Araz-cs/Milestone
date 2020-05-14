@@ -2,7 +2,7 @@ import json
 import os
 import re
 import pandas as pd
-from indexer import stemInput
+from indexer import stemInput, mergeQueries
 from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Comment
@@ -20,23 +20,28 @@ filename = "database.json"
 with open(filename, 'r') as f:
     datastore = json.load(f)
 
-query = input("Enter your query : ")
+query = ""
+while True:
 
-res = stemInput(query)
+    query = input("Enter your query : ")
+    if query == "":
+        print ("Exiting...")
+        break
+    res = stemInput(query)
 
-for s in res: # print the stemmed input words
-    print (s)
-    c = input("break")
+    for s in res: # print the stemmed input words
+        print (s)
 
+    result_list = []
+    for s in res: # loop through stemmed input and find best docs
+        result = datastore[s]
+        result.sort(reverse=True)
+        result_list.append(result)
 
-for s in res: # loop through stemmed input and find best docs
-    result_list = datastore[s]
-    result_list.sort(reverse=True)
-    for i in range(0,5):
-        index = result_list[i][1]#docid
-        index -=1
-        print (index)
-        print (docIDs[index][1]) #URL
-    c = input("break")
+    final = mergeQueries(result_list)[:5]
+
+    for item in final:
+        print(docIDs[item[0] -1][1][1:]) #removes preceeding '(' from result
+        
 
 
