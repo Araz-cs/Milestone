@@ -1,6 +1,7 @@
 from nltk.stem import PorterStemmer
 from datetime import datetime
 import json
+from math import log
 
 
 def stemInput(query: str):
@@ -55,8 +56,12 @@ class Index:
         #term is the token in question
 
         return term_freq/total_term
-      
-
+    
+    def idf(self, term_freq, Inverse_index_num):
+        return 1+log(Inverse_index_num/term_freq)
+    
+    def tf_idf (self, tf, idf):
+        return tf*idf
 
     def porterStem(self, doc: str, docId: int, docName: str): # should docName be str?
         # function will tokenize and stem the document given, then call the tf function to calculate the
@@ -94,13 +99,20 @@ class Index:
         # tf-id stuff here??
         total_words = self.total_terms(docDict) 
         #total_words is the total number of terms in the doc. It's used to calculate tf
+        
 
         # Merge docDict to self.inverted.
         for term, freq in docDict.items():
             if term in self.inverted:
-                self.inverted[term].append((self.tf(total_words,freq), docId))
+                tf = self.tf(total_words,freq)
+                idf = self.idf(total_words,self.numFiles)
+                tf_idf = self.tf_idf(tf,idf)
+                self.inverted[term].append(tf_idf, docId)
             else:
-                self.inverted[term] = [(self.tf(total_words,freq), docId)]
+                tf = self.tf(total_words,freq)
+                idf = self.idf(total_words,self.numFiles)
+                tf_idf = self.tf_idf(tf,idf)
+                self.inverted[term] = [(tf_idf, docId)]
 
 
         # Add document info into docIndex
