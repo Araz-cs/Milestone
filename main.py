@@ -29,9 +29,6 @@ while True:
         break
     res = stemInput(query)
 
-    for s in res: # print the stemmed input words
-        print (s)
-
     result_list = []
     for s in res: # loop through stemmed input and find best docs
         if s in datastore:
