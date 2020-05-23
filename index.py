@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup, Comment
 docId = 1
 index = Index(55393)
 path =path = os.path.dirname(os.path.realpath(__file__))  + '/DEV'
+
 for subdir, dirs, files in os.walk(path):
     for filename in files:
         filepath = subdir + os.sep + filename
@@ -30,8 +31,8 @@ for subdir, dirs, files in os.walk(path):
             space_delemited_text = re.sub('\s+',' ',soup.get_text())
            # print (space_delemited_text)
             index.porterStem(space_delemited_text,docId, json_load['url'])
+            print(str(docId) + ":" + str(index.num_files_in_inverted))
             docId +=1
-            print(docId)
             #if docId == 50:
             #    index.toFile()
 
@@ -41,5 +42,7 @@ time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 file.write("Ran at: " + str(time) +"\n")
 file.write("Total documents read: " +  str(docId) + "\n")
 file.close()
-index.toFile()
+index.dump_index()
+index.mergeIndexes()
+
 exit(0)
