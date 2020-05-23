@@ -26,6 +26,17 @@ def stemInput(query: str):
         ret.append(term)
     return ret
 
+# def mergeQueries(results: list):
+#     doc_dict = {}
+#     for result in results: 
+#         for document in result:
+#             if document[1] in doc_dict:
+#                 doc_dict[document[1]] += document[0]
+#             else:
+#                 doc_dict[document[1]] = document[0]
+#     
+#     return sorted(doc_dict.items(), key=lambda x: x[1], reverse=True)
+
 def mergeQueries(results: list):
     doc_dict = {}
     for result in results: 
@@ -104,6 +115,35 @@ class Index:
     
     def tf_idf (self, tf, idf):
         return tf*idf
+    
+    def porterstemQuery(self, query:str):
+        porter = PorterStemmer()
+        queryDict= {}
+        term = ""
+
+        for i in range(len(query)):
+            if (query[i].isalnum()):
+                term += query[i].lower()
+            else:
+                if (len(term)) >= 3:
+                    term = porter.stem(term)
+                    
+                    if term in queryDict:
+                        queryDict[term] += 1
+                    else:
+                        queryDict[term] = 1
+                    term = ""
+                else:
+                    term = ""
+                
+        total_words = self.total_terms(queryDict)
+        
+        for term, freq in queryDict.items():
+           if term in self.inverted:
+               tf = self.tf(total_words,freq)
+               idf = self.idf(total_words,self.numFiles)
+               tf_idf = self.tf_idf(tf,idf)
+               queryDict[term].append(tf_idf)
 
     def porterStem(self, doc: str, docId: int, docName: str): # should docName be str?
         # function will tokenize and stem the document given, then call the tf function to calculate the
