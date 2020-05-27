@@ -102,6 +102,12 @@ class Index:
             counter+=value
         return counter
     
+    def total_term_doc(self, index_list: list):
+        counter = 0
+        for value in index_list:
+            counter += 1
+        return counter
+    
     def tf(self, total_term: int, term_freq: int):
         #doc_term_dict is a dict of term frequencies for the doc in question with the token in question
         #as the key and frequency as the value
@@ -187,12 +193,12 @@ class Index:
         for term, freq in docDict.items():
            if term in self.inverted:
                tf = self.tf(total_words,freq)
-               idf = self.idf(total_words,self.numFiles)
+               idf = self.idf(self.numFiles, self.total_term_doc(self.docIndex[term]))
                tf_idf = self.tf_idf(tf,idf)
                self.inverted[term].append((tf_idf, docId))
            else:
                tf = self.tf(total_words,freq)
-               idf = self.idf(total_words,self.numFiles)
+               idf = self.idf(self.numFiles,self.total_term_doc(self.docIndex[term]))
                tf_idf = self.tf_idf(tf,idf)
                self.inverted[term] = [(tf_idf, docId)]
 

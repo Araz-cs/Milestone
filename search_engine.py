@@ -34,6 +34,12 @@ def total_terms(d_dict:dict):
         for value in d_dict.values():
             counter+=value
         return counter
+    
+def total_term_doc(index_list: list):
+    counter = 0
+    for value in index_list:
+        counter += 1
+    return counter
 
 def tf(total_term: int, term_freq: int):
         #doc_term_dict is a dict of term frequencies for the doc in question with the token in question
@@ -73,9 +79,10 @@ def porterstemQuery(query:str):
     total_words = total_terms(queryDict)
         
     for term, freq in queryDict.items():
+        term_dict = get_word_dict(term)
         if term in get_word_dict(term):
             term_freq = tf(total_words,freq)
-            inverse_doc_freq = idf(total_words,55393)
+            inverse_doc_freq = idf(55393, total_term_doc(term_dict[term]))
             term_freq_inverse_doc_freq = tf_idf(term_freq,inverse_doc_freq)
             queryDict[term] = (term_freq_inverse_doc_freq)
     return queryDict
