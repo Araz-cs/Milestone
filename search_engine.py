@@ -1,61 +1,147 @@
 from nltk.stem import PorterStemmer
 from datetime import datetime
 import json
-from math import log
+from math import log, pow, sqrt
 import os
 import string
 import time
+from collections import defaultdict
 
-def stemInput(query: str):
+
+# def stemInput(query: str):
+#     porter = PorterStemmer()
+#     term = ""
+#     ret = []
+#     for i in range(len(query)):
+#         if (query[i].isalnum()):
+#             term += query[i].lower()
+#         else:
+#              # this is used to check if length of word is 3 or more
+#             if (len(term)) >= 3:
+#                 term = porter.stem(term)
+#                 ret.append(term)
+#                 term = ""
+#             else: 
+#                 term = ""
+#     if term != "":
+#         term = porter.stem(term)
+#         ret.append(term)
+#     return ret
+
+def total_terms(d_dict:dict):
+        #d_dict will be docDict in porterStem()
+        counter = 0
+        for value in d_dict.values():
+            counter+=value
+        return counter
+
+def tf(total_term: int, term_freq: int):
+        #doc_term_dict is a dict of term frequencies for the doc in question with the token in question
+        #as the key and frequency as the value
+        #total_term is total number of terms in the individual doc
+        #term is the token in question
+
+        return term_freq/total_term
+    
+def idf(term_freq, Inverse_index_num):
+    return 1+log(Inverse_index_num/term_freq)
+    
+def tf_idf (term_freq, inverse_doc_freq):
+    return term_freq*inverse_doc_freq
+
+def porterstemQuery(query:str):
     porter = PorterStemmer()
+    queryDict= {}
     term = ""
-    ret = []
+    query = query + " "
+
     for i in range(len(query)):
         if (query[i].isalnum()):
             term += query[i].lower()
         else:
-             # this is used to check if length of word is 3 or more
             if (len(term)) >= 3:
                 term = porter.stem(term)
-                ret.append(term)
+                    
+                if term in queryDict:
+                    queryDict[term] += 1
+                else:
+                    queryDict[term] = 1
                 term = ""
-            else: 
+            else:
                 term = ""
-    if term != "":
-        term = porter.stem(term)
-        ret.append(term)
-    return ret
+                
+    total_words = total_terms(queryDict)
+        
+    for term, freq in queryDict.items():
+        if term in get_word_dict(term):
+            term_freq = tf(total_words,freq)
+            inverse_doc_freq = idf(total_words,55393)
+            term_freq_inverse_doc_freq = tf_idf(term_freq,inverse_doc_freq)
+            queryDict[term] = (term_freq_inverse_doc_freq)
+    return queryDict
+
 
 def mergeQueries(results):
     doc_dict = {}
-    for result in results: 
-        for document in result:
-            if document[1] in doc_dict:
-                doc_dict[document[1]] += document[0]
-            else:
-                doc_dict[document[1]] = document[0]
+    for result, tf_idfs in results.items(): 
+        doc_distance = 0
+        query_distance = 0
+        dot_product = 0
+        for num in tf_idfs:
+            dot_product += (num[0]*num[1])
+            doc_distance += pow(num[0],2)
+            query_distance += pow(num[1],2)
+        cosine_similarity = dot_product/(sqrt(query_distance)*sqrt(doc_distance))
+#             if cosine_similarity > 1:
+#                 pass
+#             else:
+        doc_dict[result] = cosine_similarity
     
-    return sorted(doc_dict.items(), key=lambda x: x[1], reverse=True)
+    
+    sorted_dict = sorted(doc_dict.items(), key = lambda x: x[1], reverse = True)
+    #counter = 0
+#     for values in sorted_dict:
+#         print(values)
+#         counter += 1
+#         if counter == 50:
+#             break
+    return sorted_dict
 
-def get_relevant_docs(stemmed_input :list):
+# def get_relevant_docs(stemmed_input :list):
+#  
+#     result_list = [] # list to contain the results for dictionary[word]
+#                      # for all words in the stemmed input. Each list is 
+#                      # sorted in descending order by tf-id
+#                      #  
+#     for word in stemmed_input: # loop through stemmed input and find best docs
+#          
+#         # obtain the relevant database dictionary (i.e "apple" -> a.json, "2018" -> NUM.json)
+#         relevant_dict = get_word_dict(word) 
+#          
+#         if word in relevant_dict:
+#             result = relevant_dict[word]
+#             result.sort(reverse=True)
+#             result_list.append(result)
+# 
+#     return result_list
 
-    result_list = [] # list to contain the results for dictionary[word]
-                     # for all words in the stemmed input. Each list is 
-                     # sorted in descending order by tf-id
-                     #  
+def get_relevant_docs(stemmed_input: dict):
+
+    result_dict = defaultdict(list) # defaultdict to contain the results for dictionary[word]
+                                    # for all words in the stemmed input. Each dict is 
+                                    # sorted in descending order by tf-id                 
+                                           
     for word in stemmed_input: # loop through stemmed input and find best docs
-        
         # obtain the relevant database dictionary (i.e "apple" -> a.json, "2018" -> NUM.json)
         relevant_dict = get_word_dict(word) 
         
         if word in relevant_dict:
             result = relevant_dict[word]
             result.sort(reverse=True)
-            result_list.append(result)
-
-    return result_list
-
-
+            for doc in result:
+                value_list = [doc[0],stemmed_input[word]]
+                result_dict[doc[1]].append(value_list)            
+    return result_dict
 
 def get_word_dict(word : str):
     # Get location of database

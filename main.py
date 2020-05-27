@@ -2,7 +2,7 @@ import json
 import os
 import re
 import pandas as pd
-from search_engine import stemInput, mergeQueries, get_relevant_docs
+from Milestone.search_engine import porterstemQuery, mergeQueries, get_relevant_docs
 from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Comment
@@ -27,22 +27,14 @@ while True:
     if query == "":
         print ("Exiting...")
         break
-    res = stemInput(query)
+    res = porterstemQuery(query)
 
-<<<<<<< HEAD
-    for s in res: # print the stemmed input words
-        print (s)
+    #for s in res.keys(): # print the stemmed input words
+     #   print (s)
 
     # Obtain a list of all docs related to the search
     result_list = get_relevant_docs(res)
-=======
-    result_list = []
-    for s in res: # loop through stemmed input and find best docs
-        if s in datastore:
-            result = datastore[s]
-            result.sort(reverse=True)
-            result_list.append(result)
->>>>>>> 02ddb73190bcfb0a65103cabe6c3638dd798f6c1
+
 
     # Obtain a list of the top 5 URL's relevant to the search
     final = mergeQueries(result_list)[:5]
