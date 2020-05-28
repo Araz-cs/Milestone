@@ -55,10 +55,9 @@ def idf(term_freq, Inverse_index_num):
 def tf_idf (term_freq, inverse_doc_freq):
     return term_freq*inverse_doc_freq
 
-def porterstemQuery(query:str):
+def stemInput(query:str):
     porter = PorterStemmer()
     queryDict= {}
-    result_dict = defaultdict(list)
     term = ""
     query = query + " "
 
@@ -68,7 +67,7 @@ def porterstemQuery(query:str):
         else:
             if (len(term)) >= 3:
                 term = porter.stem(term)
-                    
+                     
                 if term in queryDict:
                     queryDict[term] += 1
                 else:
@@ -76,8 +75,13 @@ def porterstemQuery(query:str):
                 term = ""
             else:
                 term = ""
-                
-    total_words = total_terms(queryDict)
+    return queryDict
+
+def porterstemQuery(query:str):
+    result_dict = defaultdict(list)
+
+    queryDict =  stemInput(query)     
+    total_words = len(queryDict.keys())
         
     for term, freq in queryDict.items():
         term_dict = get_word_dict(term)
@@ -90,7 +94,7 @@ def porterstemQuery(query:str):
 
             #gather the resulting list of documents
             term_dict[term].sort(reverse=True)
-            for doc in term_dict[term]]:
+            for doc in term_dict[term]:
                 value_list = [doc[0],queryDict[term]]
                 result_dict[doc[1]].append(value_list)   
 
