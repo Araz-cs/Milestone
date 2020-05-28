@@ -1,12 +1,12 @@
 from nltk.stem import PorterStemmer
 from datetime import datetime
-import json
+#import json
+import ujson as json
 from math import log, pow, sqrt
 import os
 import string
-import time
+from timeit import default_timer as timer
 from collections import defaultdict
-
 
 # def stemInput(query: str):
 #     porter = PorterStemmer()
@@ -56,6 +56,7 @@ def tf_idf (term_freq, inverse_doc_freq):
     return term_freq*inverse_doc_freq
 
 def stemInput(query:str):
+    start = timer()
     porter = PorterStemmer()
     queryDict= {}
     term = ""
@@ -75,9 +76,13 @@ def stemInput(query:str):
                 term = ""
             else:
                 term = ""
+    
+    end = timer()
+    print("stemInput: " + str(end - start))
     return queryDict
 
 def porterstemQuery(query:str):
+    start = timer()
     result_dict = defaultdict(list)
 
     queryDict =  stemInput(query)     
@@ -98,11 +103,14 @@ def porterstemQuery(query:str):
                 value_list = [doc[0],queryDict[term]]
                 result_dict[doc[1]].append(value_list)   
 
+    end = timer()
+    print("porterstemQuery: " + str(end - start))
     return result_dict
    # return queryDict
 
 
 def mergeQueries(results):
+    start = timer()
     doc_dict = {}
     for result, tf_idfs in results.items(): 
         doc_distance = 0
@@ -120,10 +128,13 @@ def mergeQueries(results):
     
     
     sorted_dict = sorted(doc_dict.items(), key = lambda x: x[1], reverse = True)
+
+    end = timer()
+    print("mergeQueries: " + str(end - start))
     return sorted_dict
 
 def get_relevant_docs(stemmed_input: dict):
-
+    start = timer()
     result_dict = defaultdict(list) # defaultdict to contain the results for dictionary[word]
                                     # for all words in the stemmed input. Each dict is 
                                     # sorted in descending order by tf-id                 
@@ -137,10 +148,14 @@ def get_relevant_docs(stemmed_input: dict):
             result.sort(reverse=True)
             for doc in result:
                 value_list = [doc[0],stemmed_input[word]]
-                result_dict[doc[1]].append(value_list)            
+                result_dict[doc[1]].append(value_list)       
+    
+    end = timer()
+    print("get_relevant_docs: " + str(end - start))     
     return result_dict
 
 def get_word_dict(word : str):
+    start = timer()
     # Get location of database
     folder_name = os.path.join(os.getcwd(), "database")
     letters = string.ascii_lowercase
@@ -165,5 +180,6 @@ def get_word_dict(word : str):
             file.close()
     else:
         filedata = {"", (0,0)}
-
+    end = timer()
+    print("get_word_dict: " + str(end - start))   
     return filedata

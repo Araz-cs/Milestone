@@ -1,6 +1,7 @@
-import json
+import ujson as json
 import os
 import re
+from timeit import default_timer as timer
 import pandas as pd
 from search_engine import porterstemQuery, mergeQueries, get_relevant_docs
 from pathlib import Path
@@ -21,12 +22,12 @@ docIDs = [list(row) for row in df.values]
 #    datastore = json.load(f)
 
 query = ""
-while True:
-
+while True: 
     query = input("Enter your query : ")
     if query == "":
         print ("Exiting...")
         break
+    start = timer()
     result_list = porterstemQuery(query)
 
     # Obtain a list of the top 5 URL's relevant to the search
@@ -35,6 +36,8 @@ while True:
     # Print top 5 URLS
     for item in final:
         print(docIDs[item[0] -1][1][1:]) #removes preceeding '(' from result
+        end = timer()
+    print("Total Query Time: " + str(end - start))
         
 
 

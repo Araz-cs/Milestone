@@ -1,6 +1,6 @@
 from nltk.stem import PorterStemmer
 from datetime import datetime
-import json
+import ujson as json
 from math import log
 import os
 import string
