@@ -7,17 +7,18 @@ from datetime import datetime
 from bs4 import BeautifulSoup, Comment
 
 
-def parse_table(table): 
+def parse_table(table):
     head_body = {'head':[], 'body':[]}
-    for tr in table.select('tr'): 
-        if all(t.name == 'th' for t in tr.find_all(recursive=False)): 
+    for tr in table.select('tr'):
+        if all(t.name == 'th' for t in tr.find_all(recursive=False)):
             head_body['head'] += [tr]
-        else: 
+        else:
             head_body['body'] += [tr]
-    return head_body 
+    return head_body
 
 
 space_delemited_header=""
+space_delemited_title = ""
 docId = 1
 index = Index(55393)
 path =path = os.path.dirname(os.path.realpath(__file__))  + '/DEV/aiclub_ics_uci_edu'
@@ -30,7 +31,7 @@ for subdir, dirs, files in os.walk(path):
             files = open(filepath)
             for i in files:
                 json_load = json.loads(i)
-           
+
             soup = BeautifulSoup(json_load['content'], "lxml")
             #table = soup.head
             #able_rows = parse_table(table)
@@ -45,14 +46,14 @@ for subdir, dirs, files in os.walk(path):
 
             for element in soup.findAll(['script', 'style']):
                 element.extract()
-            
+
             for i in soup.find_all(['title']):
-                space_delemited_title=re.sub('\s+',' ',i.get_text())
-                print(space_delemited_title)
+                space_delemited_title += re.sub('\s+',' ',i.get_text()) + " "
+            # print(space_delemited_title)
 
             for i in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5','b','strong']):
-                space_delemited_header=re.sub('\s+',' ',i.get_text())
-                print(space_delemited_header)
+                space_delemited_header += re.sub('\s+',' ',i.get_text()) + " "
+            # print(space_delemited_header)
 
             # headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5'])
             # h_text = re.sub('\s+',' ',headers.get_text())
