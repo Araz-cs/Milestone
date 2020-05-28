@@ -19,7 +19,7 @@ def stemInput(query: str):
                 term = porter.stem(term)
                 ret.append(term)
                 term = ""
-            else: 
+            else:
                 term = ""
     if term != "":
         term = porter.stem(term)
@@ -28,24 +28,24 @@ def stemInput(query: str):
 
 # def mergeQueries(results: list):
 #     doc_dict = {}
-#     for result in results: 
+#     for result in results:
 #         for document in result:
 #             if document[1] in doc_dict:
 #                 doc_dict[document[1]] += document[0]
 #             else:
 #                 doc_dict[document[1]] = document[0]
-#     
+#
 #     return sorted(doc_dict.items(), key=lambda x: x[1], reverse=True)
 
 def mergeQueries(results: list):
     doc_dict = {}
-    for result in results: 
+    for result in results:
         for document in result:
             if document[1] in doc_dict:
                 doc_dict[document[1]] += document[0]
             else:
                 doc_dict[document[1]] = document[0]
-    
+
     return sorted(doc_dict.items(), key=lambda x: x[1], reverse=True)
 
 
@@ -58,22 +58,22 @@ class Index:
                            # key will be doc-id, value will be three-tuple of (document name/ reference, number of word sin total, number of tokens)
 
         self.numFiles = numFiles # this will be a constant value for the number of files.
-        
+
         # in an effort to prevent having less info than we might need, here are some variables we can consider using
 
         self.maxTokens = (0,0) # maxTokens for a singular document. This will be a two-tuple where: (doc-id, number of tokens)
 
         self.maxWords = (0,0) # similarly, maxWords for a singular document. This will again be a two-tuple where: (doc-id, number of total words)
-        
+
         self.folder_name = ""
 
         self.initialize_files()
 
-        self.num_files_in_inverted = 0 
-    
+        self.num_files_in_inverted = 0
+
     # def initialize_files(self):
     # Purpose: Initializes the environment for the database to be created.
-    # Errors: if the database already exists the program will exit.  
+    # Errors: if the database already exists the program will exit.
     def initialize_files(self):
 
         # obtain path to database folder which should be (cwd)\database
@@ -107,13 +107,13 @@ class Index:
         for value in d_dict.values():
             counter+=value
         return counter
-    
+
     def total_term_doc(self, index_list: list):
         counter = 0
         for value in index_list:
             counter += 1
         return counter
-    
+
     def tf(self, total_term: int, term_freq: int):
         #doc_term_dict is a dict of term frequencies for the doc in question with the token in question
         #as the key and frequency as the value
@@ -121,13 +121,13 @@ class Index:
         #term is the token in question
 
         return term_freq/total_term
-    
+
     def idf(self, term_freq, Inverse_index_num):
         return 1+log(Inverse_index_num/term_freq)
-    
+
     def tf_idf (self, tf, idf):
         return tf*idf
-    
+
     def porterstemQuery(self, query:str):
         porter = PorterStemmer()
         queryDict= {}
@@ -139,7 +139,7 @@ class Index:
             else:
                 if (len(term)) >= 3:
                     term = porter.stem(term)
-                    
+
                     if term in queryDict:
                         queryDict[term] += 1
                     else:
@@ -147,9 +147,9 @@ class Index:
                     term = ""
                 else:
                     term = ""
-                
+
         total_words = self.total_terms(queryDict)
-        
+
         for term, freq in queryDict.items():
            if term in self.inverted:
                tf = self.tf(total_words,freq)
@@ -158,10 +158,10 @@ class Index:
                queryDict[term].append(tf_idf)
 
     # def porterStem
-    # Purpose: function will tokenize and stem the document given, 
+    # Purpose: function will tokenize and stem the document given,
     #           then call the tf function to calculate the index
     # Assumptions:  all terms are lowercase.
-    def porterStem(self, doc: str, docId: int, docName: str): # should docName be str?
+    def porterStem(self, doc: list, docId: int, docName: str): # should docName be str?
 
 
         porter = PorterStemmer()
@@ -175,26 +175,37 @@ class Index:
         term = ""
 
         for i in range(len(doc)):
-            if (doc[i].isalnum()):
-                term += doc[i].lower()
-            else:
-                # this is used to check if length of word is 3 or more
-                if (len(term)) >= 3:
-                    term = porter.stem(term)
-
-                    # stem value and append to docDict
-                    if term in docDict:
-                        docDict[term] += 1
-                    else:
-                        docDict[term] = 1
-                    term = ""
-
+            for j in range(len(doc[i])):
+                if (doc[i][j].isalnum()):
+                    term += doc[i][j].lower()
                 else:
-                    term = ""
+                    # this is used to check if length of word is 3 or more
+                    if (len(term)) >= 3:
+                        term = porter.stem(term)
 
-        total_words = self.total_terms(docDict) 
+                        # stem value and append to docDict
+                        if term in docDict:
+                            if i == 0: # title
+                                docDict[term] += 19
+                            elif i == 1: # header
+                                docDict[term] += 9
+                            else: # i == 2
+                                docDict[term] += 1
+                        else:
+                            if i == 0: # title
+                                docDict[term] = 19
+                            elif i == 1: # header
+                                docDict[term] = 9
+                            else: # i == 2
+                                docDict[term] = 1
+                        term = ""
+
+                    else:
+                        term = ""
+
+        total_words = self.total_terms(docDict)
         #total_words is the total number of terms in the doc. It's used to calculate tf
-        
+
 
        # Merge docDict to self.inverted.
         for term, freq in docDict.items():
@@ -226,7 +237,7 @@ class Index:
         if self.num_files_in_inverted > 10000:
             self.dump_index()
             self.num_files_in_inverted = 0
-        
+
 
     def printIndex(self):
     # placeholder function for printing the index itself for info needed for the report
@@ -238,7 +249,7 @@ class Index:
         pass
 
     def toFile(self):
-        
+
         time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
         #print docfile to docindex.csv
@@ -260,19 +271,19 @@ class Index:
 
     def update_tfidfs(self, datastore):
         # Calculate tf-idf's
-        for term in datastore: 
+        for term in datastore:
             num_files_with_key = len(datastore[term])
             for pair in datastore[term]:
                 tf = pair[0]
                 idf = self.idf(num_files_with_key,55393)
                 #print (str(tf) + "-" + str(idf))
-                tf_idf = self.tf_idf(tf,idf)    
+                tf_idf = self.tf_idf(tf,idf)
                 pair[0] = tf_idf
 
     # def mergeIndexes(self):
-    # Function to merge [a-z].json and NUM.json 
+    # Function to merge [a-z].json and NUM.json
     # into a final database.json (to meet specification only)
-    # ALSO: Calculates TF-IDF for documents throughout each json file. 
+    # ALSO: Calculates TF-IDF for documents throughout each json file.
     def mergeIndexes(self):
         letters = string.ascii_lowercase
         write_file = open("database.json", "w+")
@@ -286,30 +297,30 @@ class Index:
             self.update_tfidfs(datastore)
             # Put the json file back with updated tf-idf's
             self.dump_dict_to_json_file(datastore, filename)
-            # Merge current dictionary with global dictionary file. 
+            # Merge current dictionary with global dictionary file.
             json.dump(datastore,write_file)
 
         # Dump NUM.json
         filename = self.folder_name + "\\NUM.json"
-        
+
         datastore = self.get_dict_from_filename(filename)
         # Update tf-idfs
         self.update_tfidfs(datastore)
         # Put the json file back with updated tf-idf's
         self.dump_dict_to_json_file(datastore, filename)
-        # Merge current dictionary with global dictionary file. 
-        json.dump(datastore,write_file)   
-    
+        # Merge current dictionary with global dictionary file.
+        json.dump(datastore,write_file)
+
         # Dump nonascii.json
         filename = self.folder_name + "\\" + "nonascii.json"
-        
+
         datastore = self.get_dict_from_filename(filename)
         # Update tf-idfs
         self.update_tfidfs(datastore)
         # Put the json file back with updated tf-idf's
         self.dump_dict_to_json_file(datastore, filename)
-        # Merge current dictionary with global dictionary file. 
-        json.dump(datastore,write_file)   
+        # Merge current dictionary with global dictionary file.
+        json.dump(datastore,write_file)
 
 
         # Close global dict
@@ -317,7 +328,7 @@ class Index:
 
     # def get_dict_from_filename(...):
     # Function: To open a json file, load the data from it, then close the file
-    # and return the dictionary of the file contents 
+    # and return the dictionary of the file contents
     # (or empty dictionary if the file was empty)
     # WARNING: DELETE JSON FILE, CALL dump_dict_to_json_file()
     #   AFTER THIS IS CALLED
@@ -332,7 +343,7 @@ class Index:
             filedata = {}
 
         return filedata
-    
+
     # def dump_dict_to_json_file(...):
     # Function: To open a json file, dump data to it, then close the file
     # Helper function for dump_index
@@ -350,23 +361,23 @@ class Index:
 
         for letter in letters:
             filename = self.folder_name + "\\" + letter + ".json"
-            
+
             # Load the associated json file as a dictionary "filedata"
             filedata = self.get_dict_from_filename(filename)
-            
+
             # Find all keys in self.inverted that start with [letter]
-            # put them in filedata to store in the json file. 
+            # put them in filedata to store in the json file.
             for term, res in self.inverted.items():
                 if term[0] == letter:
                     if term in filedata:
                         filedata[term].extend(self.inverted[term])
                     else:
                         filedata[term] = self.inverted[term]
-            
-            # Dump fildata to the same json file we got the data from 
+
+            # Dump fildata to the same json file we got the data from
             # initially
             self.dump_dict_to_json_file(filedata, filename)
-        
+
         # Get all keys that start with a digit, do the same as above
         filename = self.folder_name + "\\NUM.json"
         filedata = self.get_dict_from_filename(filename)
