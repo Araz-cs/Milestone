@@ -58,6 +58,7 @@ def tf_idf (term_freq, inverse_doc_freq):
 def porterstemQuery(query:str):
     porter = PorterStemmer()
     queryDict= {}
+    result_dict = defaultdict(list)
     term = ""
     query = query + " "
 
@@ -80,12 +81,21 @@ def porterstemQuery(query:str):
         
     for term, freq in queryDict.items():
         term_dict = get_word_dict(term)
-        if term in get_word_dict(term):
+        if term in term_dict:
+            #tf-id stuff 
             term_freq = tf(total_words,freq)
             inverse_doc_freq = idf(55393, total_term_doc(term_dict[term]))
             term_freq_inverse_doc_freq = tf_idf(term_freq,inverse_doc_freq)
             queryDict[term] = (term_freq_inverse_doc_freq)
-    return queryDict
+
+            #gather the resulting list of documents
+            term_dict[term].sort(reverse=True)
+            for doc in term_dict[term]]:
+                value_list = [doc[0],queryDict[term]]
+                result_dict[doc[1]].append(value_list)   
+
+    return result_dict
+   # return queryDict
 
 
 def mergeQueries(results):
@@ -106,31 +116,7 @@ def mergeQueries(results):
     
     
     sorted_dict = sorted(doc_dict.items(), key = lambda x: x[1], reverse = True)
-    #counter = 0
-#     for values in sorted_dict:
-#         print(values)
-#         counter += 1
-#         if counter == 50:
-#             break
     return sorted_dict
-
-# def get_relevant_docs(stemmed_input :list):
-#  
-#     result_list = [] # list to contain the results for dictionary[word]
-#                      # for all words in the stemmed input. Each list is 
-#                      # sorted in descending order by tf-id
-#                      #  
-#     for word in stemmed_input: # loop through stemmed input and find best docs
-#          
-#         # obtain the relevant database dictionary (i.e "apple" -> a.json, "2018" -> NUM.json)
-#         relevant_dict = get_word_dict(word) 
-#          
-#         if word in relevant_dict:
-#             result = relevant_dict[word]
-#             result.sort(reverse=True)
-#             result_list.append(result)
-# 
-#     return result_list
 
 def get_relevant_docs(stemmed_input: dict):
 
