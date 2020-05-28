@@ -34,7 +34,7 @@ for subdir, dirs, files in os.walk(path):
             print(str(docId) + ":" + str(index.num_files_in_inverted))
             docId +=1
             #if docId == 50:
-            #    index.toFile()
+                #index.mergeIndexes()
 
 
 file = open("info.txt", "a+")

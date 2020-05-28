@@ -258,13 +258,14 @@ class Index:
         #file.write("\nTotal unique keys:" + str(len(self.inverted)))
         file.close()
 
-    def update_tfidfs(datastore):
+    def update_tfidfs(self, datastore):
         # Calculate tf-idf's
         for term in datastore: 
             num_files_with_key = len(datastore[term])
             for pair in datastore[term]:
                 tf = pair[0]
                 idf = self.idf(num_files_with_key,55393)
+                #print (str(tf) + "-" + str(idf))
                 tf_idf = self.tf_idf(tf,idf)    
                 pair[0] = tf_idf
 
@@ -280,43 +281,36 @@ class Index:
         for letter in letters:
             filename = self.folder_name + "\\" + letter + ".json"
 
-            datastore = get_dict_from_filename(filename)
+            datastore = self.get_dict_from_filename(filename)
             # Update tf-idfs
-            update_tfidfs(datastore)
+            self.update_tfidfs(datastore)
             # Put the json file back with updated tf-idf's
-            dump_dict_to_json_file(datastore, filename)
+            self.dump_dict_to_json_file(datastore, filename)
             # Merge current dictionary with global dictionary file. 
             json.dump(datastore,write_file)
 
         # Dump NUM.json
         filename = self.folder_name + "\\NUM.json"
         
-        datastore = get_dict_from_filename(filename)
+        datastore = self.get_dict_from_filename(filename)
         # Update tf-idfs
-        update_tfidfs(datastore)
+        self.update_tfidfs(datastore)
         # Put the json file back with updated tf-idf's
-        dump_dict_to_json_file(datastore, filename)
+        self.dump_dict_to_json_file(datastore, filename)
         # Merge current dictionary with global dictionary file. 
         json.dump(datastore,write_file)   
-        # Put the json file back with updated tf-idf's
-        dump_dict_to_json_file(datastore, filename)
-        # Merge current dictionary with global dictionary file. 
-        json.dump(datastore,write_file)
-
+    
         # Dump nonascii.json
         filename = self.folder_name + "\\" + "nonascii.json"
         
-        datastore = get_dict_from_filename(filename)
+        datastore = self.get_dict_from_filename(filename)
         # Update tf-idfs
-        update_tfidfs(datastore)
+        self.update_tfidfs(datastore)
         # Put the json file back with updated tf-idf's
-        dump_dict_to_json_file(datastore, filename)
+        self.dump_dict_to_json_file(datastore, filename)
         # Merge current dictionary with global dictionary file. 
         json.dump(datastore,write_file)   
-        # Put the json file back with updated tf-idf's
-        dump_dict_to_json_file(datastore, filename)
-        # Merge current dictionary with global dictionary file. 
-        json.dump(datastore,write_file)
+
 
         # Close global dict
         write_file.close()
@@ -358,7 +352,7 @@ class Index:
             filename = self.folder_name + "\\" + letter + ".json"
             
             # Load the associated json file as a dictionary "filedata"
-            filedata = get_dict_from_filename(filename)
+            filedata = self.get_dict_from_filename(filename)
             
             # Find all keys in self.inverted that start with [letter]
             # put them in filedata to store in the json file. 
@@ -371,31 +365,31 @@ class Index:
             
             # Dump fildata to the same json file we got the data from 
             # initially
-            dump_dict_to_json_file(filedata, filename)
+            self.dump_dict_to_json_file(filedata, filename)
         
         # Get all keys that start with a digit, do the same as above
         filename = self.folder_name + "\\NUM.json"
-        filedata = get_dict_from_filename(filename)
+        filedata = self.get_dict_from_filename(filename)
 
         for term, res in self.inverted.items():
             if term[0].isdigit():
                 if term in filedata:
-                    filedata[term].append(self.inverted[term])
+                    filedata[term].extend(self.inverted[term])
                 else:
                     filedata[term] = self.inverted[term]
 
-        dump_dict_to_json_file(filedata, filename)
+        self.dump_dict_to_json_file(filedata, filename)
 
         # Get all other keys
         filename = self.folder_name + "\\nonascii.json"
-        filedata = get_dict_from_filename(filename)
+        filedata = self.get_dict_from_filename(filename)
 
         for term, res in self.inverted.items():
             if  ((term[0] not in numbers) and (term[0] not in letters)):
                 if term in filedata:
-                    filedata[term].append(self.inverted[term])
+                    filedata[term].extend(self.inverted[term])
                 else:
                     filedata[term] = self.inverted[term]
 
-        dump_dict_to_json_file(filedata, filename)
+        self.dump_dict_to_json_file(filedata, filename)
         self.inverted.clear()
