@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from Milestone.indexer import Index
+from indexer import Index
 from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Comment

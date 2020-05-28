@@ -71,27 +71,33 @@ class Index:
 
         self.num_files_in_inverted = 0 
     
+    # def initialize_files(self):
+    # Purpose: Initializes the environment for the database to be created.
+    # Errors: if the database already exists the program will exit.  
     def initialize_files(self):
-        # Make folder to store database. 
+
+        # obtain path to database folder which should be (cwd)\database
         cwd = os.getcwd()
         self.folder_name = os.path.join(cwd, "database")
         if os.path.exists(self.folder_name):
             print("ERROR:" + self.folder_name + "\nalready exists, remove or move it to generate a new database.")
             exit(0)
 
-        # Create the folder
+        # Create the database folder
         os.mkdir(self.folder_name)
 
-        # Create (cwd)\database\[a-z & NUM & nonascii].json files
+        # Create (cwd)\database\[a-z].json files
         letters = string.ascii_lowercase
         for letter in letters:
             filename = self.folder_name + "\\" + letter + ".json"
             f = open(filename, "w+")
             f.close()
 
+        # Create (cwd)\database\NUM.json file
         f = open(self.folder_name + "\\" + "NUM.json", "w+")
         f.close()
 
+        # Create (cwd)\database\nonascii.json file
         f = open(self.folder_name + "\\" + "nonascii.json", "w+")
         f.close()
 
@@ -151,10 +157,12 @@ class Index:
                tf_idf = self.tf_idf(tf,idf)
                queryDict[term].append(tf_idf)
 
+    # def porterStem
+    # Purpose: function will tokenize and stem the document given, 
+    #           then call the tf function to calculate the index
+    # Assumptions:  all terms are lowercase.
     def porterStem(self, doc: str, docId: int, docName: str): # should docName be str?
-        # function will tokenize and stem the document given, then call the tf function to calculate the
-        # index
-        # assuming all terms are lowercase.
+
 
         porter = PorterStemmer()
         docDict= {} # inverted index for individual document, where each term will be added to this dictionary in order to be added
@@ -184,7 +192,6 @@ class Index:
                 else:
                     term = ""
 
-        # tf-id stuff here??
         total_words = self.total_terms(docDict) 
         #total_words is the total number of terms in the doc. It's used to calculate tf
         
@@ -193,57 +200,18 @@ class Index:
         for term, freq in docDict.items():
            if term in self.inverted:
                tf = self.tf(total_words,freq)
-               idf = self.idf(self.numFiles, self.total_term_doc(self.docIndex[term]))
-               tf_idf = self.tf_idf(tf,idf)
-               self.inverted[term].append((tf_idf, docId))
+               #idf = self.idf(self.numFiles, self.total_term_doc(self.docIndex[term]))
+               #tf_idf = self.tf_idf(tf,idf)
+               self.inverted[term].append((tf, docId))
            else:
                tf = self.tf(total_words,freq)
-               idf = self.idf(self.numFiles,self.total_term_doc(self.docIndex[term]))
-               tf_idf = self.tf_idf(tf,idf)
-               self.inverted[term] = [(tf_idf, docId)]
+               #idf = self.idf(self.numFiles,self.total_term_doc(self.docIndex[term]))
+               #tf_idf = self.tf_idf(tf,idf)
+               self.inverted[term] = [(tf, docId)]
 
-        #add docDict items to associated files
-        # for term, freq in docDict.items():
-        #     # get the associated filename to the term in question.
-        #     letters = string.ascii_lowercase
-        #     filename = self.folder_name + "\\"
-
-        #     if term[0].isdigit():
-        #         filename +="NUM.json"
-        #     elif term[0] in letters:
-        #         filename += term[0] + ".json"
-        #     else:
-        #         filename += "nonascii.json"
-
-        #     # read in that json files data
-        #     if os.path.getsize(filename) > 0:
-        #         f = open(filename, 'r')
-        #         datastore = json.load(f)
-        #         f.close()
-        #         os.remove(filename)
-        #     else:
-        #         datastore = {}
-
-
-        #     # If the term exists, update it, otherwise we write a new value
-        #     if term in datastore:
-        #         tf = self.tf(total_words,freq)
-        #         idf = self.idf(total_words,self.numFiles)
-        #         tf_idf = self.tf_idf(tf,idf)
-        #         datastore[term].append((tf_idf, docId))
-        #     else:
-        #         tf = self.tf(total_words,freq)
-        #         idf = self.idf(total_words,self.numFiles)
-        #         tf_idf = self.tf_idf(tf,idf)
-        #         datastore[term] = [(tf_idf, docId)]
-
-        #     # Re-open and re-write [letter].json with the updated information. 
-        #     time.sleep(0.005)
-        #     f = open(filename, 'w')
-        #     json.dump(datastore, f)
-        #     f.close()
         # Add document info into docIndex
-        self.docIndex[docId] = (docName, len(docDict.keys()), sum(docDict.values()))
+        # DocName, Number of unique terms in doc
+        self.docIndex[docId] = (docName, len(docDict.keys()))#, sum(docDict.values()))
 
         # Update self.maxTokens and self.maxWords
         if len(docDict.keys()) > self.maxTokens[1]:
@@ -252,8 +220,9 @@ class Index:
         if sum(docDict.values()) > self.maxWords[1]:
             self.maxWords = (docId, sum(docDict.values()))
 
+        # Increment the number of files currently in memory
+        # dump if it exceeds 10,000
         self.num_files_in_inverted +=1
-
         if self.num_files_in_inverted > 10000:
             self.dump_index()
             self.num_files_in_inverted = 0
@@ -269,9 +238,6 @@ class Index:
         pass
 
     def toFile(self):
-        # function to send the inverted index to a file. 
-        with open("database.json", "w+") as write_file:
-            json.dump(self.inverted, write_file)
         
         time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -289,65 +255,80 @@ class Index:
         file.write("Max Tokens\nDocument: " + str(self.maxTokens[0]) +  "\nfrom URL: " + str(self.docIndex[self.maxTokens[0]]) +  "\nTotal Tokens: " + str(self.maxTokens[1]))
         file.write("\n\n")
         file.write("Max words\nDocument: " +  str(self.maxWords[0]) + "\nfrom URL: " + str(self.docIndex[self.maxWords[0]]) + "\nTotal Tokens: " + str(self.maxWords[1]))
-        file.write("\nTotal unique keys:" + str(len(self.inverted)))
+        #file.write("\nTotal unique keys:" + str(len(self.inverted)))
         file.close()
 
-    def mergeIndexes(self):
-        # Function to merge [a-z].json and NUM.json into a final database.json (to meet specification only)
-        letters = string.ascii_lowercase
-        #with open("database.json", "w+") as write_file:
+    def update_tfidfs(datastore):
+        # Calculate tf-idf's
+        for term in datastore: 
+            num_files_with_key = len(datastore[term])
+            for pair in datastore[term]:
+                tf = pair[0]
+                idf = self.idf(num_files_with_key,55393)
+                tf_idf = self.tf_idf(tf,idf)    
+                pair[0] = tf_idf
 
+    # def mergeIndexes(self):
+    # Function to merge [a-z].json and NUM.json 
+    # into a final database.json (to meet specification only)
+    # ALSO: Calculates TF-IDF for documents throughout each json file. 
+    def mergeIndexes(self):
+        letters = string.ascii_lowercase
         write_file = open("database.json", "w+")
 
         # Dump [a-z].json
         for letter in letters:
             filename = self.folder_name + "\\" + letter + ".json"
-            with open(filename, 'r') as f:
-                datastore = json.load(f)
+
+            datastore = get_dict_from_filename(filename)
+            # Update tf-idfs
+            update_tfidfs(datastore)
+            # Put the json file back with updated tf-idf's
+            dump_dict_to_json_file(datastore, filename)
+            # Merge current dictionary with global dictionary file. 
             json.dump(datastore,write_file)
 
         # Dump NUM.json
-        #with open(self.folder_name + "\\NUM.json", "r") as f:
-         #   datastore = json.load(f)
-
-      #  json.dump(datastore,write_file)
-
-        # Dump nonascii.json
-        with open(self.folder_name + "\\" + "nonascii.json", "r") as f:
-            datastore = json.load(f)
-
+        filename = self.folder_name + "\\NUM.json"
+        
+        datastore = get_dict_from_filename(filename)
+        # Update tf-idfs
+        update_tfidfs(datastore)
+        # Put the json file back with updated tf-idf's
+        dump_dict_to_json_file(datastore, filename)
+        # Merge current dictionary with global dictionary file. 
+        json.dump(datastore,write_file)   
+        # Put the json file back with updated tf-idf's
+        dump_dict_to_json_file(datastore, filename)
+        # Merge current dictionary with global dictionary file. 
         json.dump(datastore,write_file)
 
+        # Dump nonascii.json
+        filename = self.folder_name + "\\" + "nonascii.json"
+        
+        datastore = get_dict_from_filename(filename)
+        # Update tf-idfs
+        update_tfidfs(datastore)
+        # Put the json file back with updated tf-idf's
+        dump_dict_to_json_file(datastore, filename)
+        # Merge current dictionary with global dictionary file. 
+        json.dump(datastore,write_file)   
+        # Put the json file back with updated tf-idf's
+        dump_dict_to_json_file(datastore, filename)
+        # Merge current dictionary with global dictionary file. 
+        json.dump(datastore,write_file)
+
+        # Close global dict
         write_file.close()
 
-    def dump_index(self):
-        letters = string.ascii_lowercase
-        numbers = ['0','1','2','3','4','5','6','7','8','9']
-        for letter in letters:
-            filename = self.folder_name + "\\" + letter + ".json"
-            
-            if os.path.getsize(filename) > 0:
-                file = open(filename, 'r')
-                filedata = json.load(file)
-                file.close()
-                os.remove(filename)
-            else:
-                filedata = {}
-            
-            # Find all keys that start with [letter]
-            for term, res in self.inverted.items():
-                if term[0] == letter:
-                    if term in filedata:
-                        filedata[term].extend(self.inverted[term])
-                    else:
-                        filedata[term] = self.inverted[term]
-                        
-            file = open(filename, "w")
-            json.dump(filedata,file)
-            file.close()
-        
-        # Get all keys that start with a digit
-        filename = self.folder_name + "\\NUM.json"
+    # def get_dict_from_filename(...):
+    # Function: To open a json file, load the data from it, then close the file
+    # and return the dictionary of the file contents 
+    # (or empty dictionary if the file was empty)
+    # WARNING: DELETE JSON FILE, CALL dump_dict_to_json_file()
+    #   AFTER THIS IS CALLED
+    # Helper function for dump_index
+    def get_dict_from_filename(self, filename:str):
         if os.path.getsize(filename) > 0:
             file = open(filename, 'r')
             filedata = json.load(file)
@@ -355,6 +336,46 @@ class Index:
             os.remove(filename)
         else:
             filedata = {}
+
+        return filedata
+    
+    # def dump_dict_to_json_file(...):
+    # Function: To open a json file, dump data to it, then close the file
+    # Helper function for dump_index
+    def dump_dict_to_json_file(self, dict_to_dump, filename):
+        file = open(filename, "w")
+        json.dump(dict_to_dump,file)
+        file.close()
+
+    # def dump_index(self):
+    # Function: To dump the temporary index into its associated
+    # database file [a-z, NUM, nonascii].json
+    def dump_index(self):
+        letters = string.ascii_lowercase
+        numbers = ['0','1','2','3','4','5','6','7','8','9']
+
+        for letter in letters:
+            filename = self.folder_name + "\\" + letter + ".json"
+            
+            # Load the associated json file as a dictionary "filedata"
+            filedata = get_dict_from_filename(filename)
+            
+            # Find all keys in self.inverted that start with [letter]
+            # put them in filedata to store in the json file. 
+            for term, res in self.inverted.items():
+                if term[0] == letter:
+                    if term in filedata:
+                        filedata[term].extend(self.inverted[term])
+                    else:
+                        filedata[term] = self.inverted[term]
+            
+            # Dump fildata to the same json file we got the data from 
+            # initially
+            dump_dict_to_json_file(filedata, filename)
+        
+        # Get all keys that start with a digit, do the same as above
+        filename = self.folder_name + "\\NUM.json"
+        filedata = get_dict_from_filename(filename)
 
         for term, res in self.inverted.items():
             if term[0].isdigit():
@@ -363,19 +384,11 @@ class Index:
                 else:
                     filedata[term] = self.inverted[term]
 
-        file = open(filename, "w")
-        json.dump(filedata,file)
-        file.close()
+        dump_dict_to_json_file(filedata, filename)
 
         # Get all other keys
         filename = self.folder_name + "\\nonascii.json"
-        if os.path.getsize(filename) > 0:
-            file = open(filename, 'r')
-            filedata = json.load(file)
-            file.close()
-            os.remove(filename)
-        else:
-            filedata = {}
+        filedata = get_dict_from_filename(filename)
 
         for term, res in self.inverted.items():
             if  ((term[0] not in numbers) and (term[0] not in letters)):
@@ -384,10 +397,5 @@ class Index:
                 else:
                     filedata[term] = self.inverted[term]
 
-        file = open(filename, "w")
-        json.dump(filedata,file)
-        file.close()
+        dump_dict_to_json_file(filedata, filename)
         self.inverted.clear()
-
-   # def fromFile(self):
-        # funtion to retrieve a 
