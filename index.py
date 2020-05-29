@@ -1,4 +1,4 @@
-    import json
+import ujson as json
 import os
 import re
 from timeit import default_timer as timer
@@ -44,13 +44,8 @@ for subdir, dirs, files in os.walk(path):
 
             #print (space_delemited_text)
 
-<<<<<<< HEAD
             # grouped_texts will be a 3 element array (list) with the order of [title, header, text] as shown above
             grouped_texts = [space_delemited_title, space_delemited_header, space_delemited_text]
-=======
-
-           # this will then be used to call into porterStem.
->>>>>>> 56ee00224b4e33ac16117ed52a457c362a682d5c
 
             # this will then be used to call into porterStem.
             end = timer()
