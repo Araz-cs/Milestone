@@ -7,8 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Comment
 
-space_delemited_header=""
-space_delemited_title = ""
+
 docId = 1
 index = Index(55393)
 path =path = os.path.dirname(os.path.realpath(__file__))  + '/DEV'
@@ -30,7 +29,9 @@ for subdir, dirs, files in os.walk(path):
 
             for element in soup.findAll(['script', 'style']):
                 element.extract()
-
+            space_delemited_header=""
+            space_delemited_title = ""
+            
             for i in soup.find_all(['title']):
                 # space_delemited_title += ' '.join(i.get_text().split()) + " "
                 space_delemited_title += i.get_text() + " "
