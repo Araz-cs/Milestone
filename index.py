@@ -32,17 +32,15 @@ for subdir, dirs, files in os.walk(path):
                 element.extract()
 
             for i in soup.find_all(['title']):
-                space_delemited_title += ' '.join(i.get_text().split()) + " "
-            # space_delemited_title = re.sub('\s+',' ', space_delemited_title)
+                # space_delemited_title += ' '.join(i.get_text().split()) + " "
+                space_delemited_title += i.get_text() + " "
 
             for i in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5','b','strong']):
-                space_delemited_header += ' '.join(i.get_text().split()) + " "
-            # space_delemited_header = re.sub('\s+',' ', space_delemited_header)
+                # space_delemited_header += ' '.join(i.get_text().split()) + " "
+                space_delemited_header += i.get_text() + " "
 
-            # space_delemited_text = re.sub('\s+',' ',soup.get_text())
-            space_delemited_text = ' '.join(soup.get_text().split())
-
-            #print (space_delemited_text)
+            # space_delemited_text = ' '.join(soup.get_text().split())
+            space_delemited_text = soup.get_text()
 
             # grouped_texts will be a 3 element array (list) with the order of [title, header, text] as shown above
             grouped_texts = [space_delemited_title, space_delemited_header, space_delemited_text]
