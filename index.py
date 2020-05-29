@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from timeit import default_timer as timer
 from indexer import Index
 from pathlib import Path
 from datetime import datetime
@@ -21,6 +22,7 @@ for subdir, dirs, files in os.walk(path):
             for i in files:
                 json_load = json.loads(i)
 
+            start = timer()
             soup = BeautifulSoup(json_load['content'], "lxml")
 
             for tag in soup(text=lambda text: isinstance(text,Comment)):
@@ -37,14 +39,20 @@ for subdir, dirs, files in os.walk(path):
                 space_delemited_header += re.sub('\s+',' ',i.get_text()) + " "
 
             space_delemited_text = re.sub('\s+',' ',soup.get_text())
-           # print (space_delemited_text)
+            
+            #print (space_delemited_text)
 
-           # grouped_texts will be a 3 element array (list) with the order of [title, header, text] as shown above
-           grouped_texts = [space_delemited_title, space_delemited_header, space_delemited_text]
+            # grouped_texts will be a 3 element array (list) with the order of [title, header, text] as shown above
+            grouped_texts = [space_delemited_title, space_delemited_header, space_delemited_text]
 
-           # this will then be used to call into porterStem.
-
+            # this will then be used to call into porterStem.
+            end = timer()
+            print("Total Beautiful Soup Time: " + str(end - start))
             index.porterStem(grouped_texts,docId, json_load['url'])
+
+            
+            end2 = timer()
+            print("Total Index Time: " + str(end2 - start))
             print(str(docId) + ":" + str(index.num_files_in_inverted))
             docId +=1
             #if docId == 50:

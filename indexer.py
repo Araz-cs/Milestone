@@ -5,6 +5,7 @@ from math import log
 import os
 import string
 import time
+from timeit import default_timer as timer
 
 def stemInput(query: str):
     porter = PorterStemmer()
@@ -234,7 +235,7 @@ class Index:
         # Increment the number of files currently in memory
         # dump if it exceeds 10,000
         self.num_files_in_inverted +=1
-        if self.num_files_in_inverted > 10000:
+        if self.num_files_in_inverted > 500:
             self.dump_index()
             self.num_files_in_inverted = 0
 
