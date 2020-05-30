@@ -6,8 +6,9 @@ from indexer import Index
 from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Comment
+import hashlib
 
-
+hashDict = set()
 docId = 1
 index = Index(55393)
 path =path = os.path.dirname(os.path.realpath(__file__))  + '/DEV'
@@ -31,7 +32,7 @@ for subdir, dirs, files in os.walk(path):
                 element.extract()
             space_delemited_header=""
             space_delemited_title = ""
-            
+
             for i in soup.find_all(['title']):
                 # space_delemited_title += ' '.join(i.get_text().split()) + " "
                 space_delemited_title += i.get_text() + " "
@@ -42,6 +43,13 @@ for subdir, dirs, files in os.walk(path):
 
             # space_delemited_text = ' '.join(soup.get_text().split())
             space_delemited_text = soup.get_text()
+            tempHash = haslib.md5(space_delemited_text.encode('utf-8')).hexdigest()
+
+            if tempHash in hashDict:
+                continue
+
+
+            hashDict.add(tempHash)
 
             # grouped_texts will be a 3 element array (list) with the order of [title, header, text] as shown above
             grouped_texts = [space_delemited_title, space_delemited_header, space_delemited_text]
